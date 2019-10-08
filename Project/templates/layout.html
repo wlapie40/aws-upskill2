@@ -1,0 +1,53 @@
+{% extends "bootstrap/base.html" %}
+{% block html_attribs %} lang="en"{% endblock %}
+{% block head %}
+{{super()}}
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.8/css/solid.css" integrity="sha384-v2Tw72dyUXeU3y4aM2Y0tBJQkGfplr39mxZqlTBDUZAb9BGoC40+rdFCG0m10lXk" crossorigin="anonymous">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.8/css/fontawesome.css" integrity="sha384-q3jl8XQu1OpdLgGFvNRnPdj5VIlCvgsDQTQB6owSOHWlAurxul7f+JpUOVdAiJ5P" crossorigin="anonymous">
+<link rel="stylesheet" href="/static/styles.css">
+{% endblock %}
+{% block title %}Flask S3 Browser{% endblock %}
+
+{% block navbar %}
+<div class="container">
+  <div class="navbar">
+    <a class="navbar-brand" href="#">
+      <img src="/static/s3.png" width="60" height="50" class="d-inline-block align-top" alt="">
+    </a>
+    <ul class="nav navbar-nav">
+      {% if current_user.is_authenticated %}
+      <li><a href="{{ url_for('index') }}"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span>S3 buckets list </a></li>
+      <!--      <li><a href="{{ url_for('files') }}"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Files</a></li>-->
+      <li><a href="{{ url_for('create_bucket') }}"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create new bucket</a></li>
+      <li><a href="{{ url_for('cloud_watch') }}"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> CloudWatch logs</a></li>
+      <li><a href=""><span class="glyphicon glyphicon-user" aria-hidden="true"></span> {{name}}</a></li>
+      <li><a href=""><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> environment:
+        {% if cur_env == 'prod' %}
+        <font color="red"><b>{{cur_env}}</b></font>
+        {% elif cur_env == 'docker' %}
+        <font color="blue"><b>{{cur_env}}</b></font>
+        {% else %}
+        <font color="green"><b>{{cur_env}}</b></font>
+        {% endif %}</a></li>
+      <li><a href="{{ url_for('logout') }}">Logout</a></li>
+      {% else %}
+      <li><a href="{{ url_for('login') }}">Login</a></li>
+      {% endif %}
+    </ul>
+  </div>
+</div>
+{% endblock %}
+
+<div class="container">{% block content %}{% endblock %}</div>
+
+<!-- Footer -->
+<footer class="page-footer font-small blue">
+
+  <!-- Copyright -->
+  <div class="footer-copyright text-center py-3">© 2018 Copyright:
+    <a href="https://mdbootstrap.com/education/bootstrap/"> MDBootstrap.com</a>
+  </div>
+  <!-- Copyright -->
+
+</footer>
+<!-- Footer -->

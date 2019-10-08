@@ -1,0 +1,12 @@
+##todo deploy.sh
+Flask, Parameter Store, CloudWatch, S3, Jenkins, Makefile, Docker, API
+
+1. export FLASK_ENV= dev or docker  or prod
+2. python deploy.py
+or
+1. export FLASK_ENV=/dev/docker/prod
+2. *pipenv shell
+3. python database_conf_gen.py
+4. docker-compose down
+5. docker-compose up -d
+6. *pipenv run python app.py / python app.py (virtualenv)

@@ -1,0 +1,28 @@
+pipeline {
+    agent none
+    environment {
+        FLASK_ENV = 'dev'
+    }
+    stages {
+        stage('Building') {
+            agent any
+            steps {
+                withPythonEnv('/usr/bin/python3') {
+                    sh 'pip3 install -r Project/jenkins/requirements.txt'
+                    sh 'python3 gen_creds_for_db.py'
+}
+             dir ('Project/jenkins/') {
+                  sh 'make build'
+                }
+                    }
+        }
+        stage('Destroying') {
+            agent any
+            steps {
+           dir ('Project/jenkins/') {
+                sh 'make down'
+              }
+            }
+        }
+    }
+}
