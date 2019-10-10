@@ -1,0 +1,11 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      docker: 18
+      python: 3.7
+  build:
+    commands:
+      - docker-compose --version
+      - echo Building the Docker image ...
+      - docker-compose up -d

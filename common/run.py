@@ -51,7 +51,7 @@ def _cloud_watch_monitoring():
 
 def create_app():
     cur_env = str(os.environ['FLASK_ENV'])
-
+    print(cur_env)
     param = ParameterStore()
     try:
         param_store_name = param._parameters[cur_env]

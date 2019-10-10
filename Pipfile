@@ -46,6 +46,7 @@ SQLAlchemy-Utils = "==0.34.2"
 Werkzeug = "==0.15.5"
 WTForms = "==2.2.1"
 pipenv = "==2018.11.26"
+mypy = "*"
 
 [requires]
 python_version = "3.7"
