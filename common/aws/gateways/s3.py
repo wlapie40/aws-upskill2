@@ -3,8 +3,8 @@ import logging as logger
 import boto3
 from flask_restful import reqparse
 
-from Project.aws.entities.serializers import serializer
-from Project.aws.gateways.session import (_get_s3_resource, )
+from common.aws.entities.serializers import serializer
+from common.aws.gateways.session import (_get_s3_resource, )
 
 # Define parser and request args
 parser = reqparse.RequestParser()

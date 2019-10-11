@@ -1,4 +1,4 @@
-from Project.aws.entities.filters import datetimeformat
+from common.aws.entities.filters import datetimeformat
 import json
 
 

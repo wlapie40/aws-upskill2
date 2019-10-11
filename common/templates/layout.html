@@ -19,7 +19,7 @@
       <li><a href="{{ url_for('index') }}"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span>S3 buckets list </a></li>
       <!--      <li><a href="{{ url_for('files') }}"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Files</a></li>-->
       <li><a href="{{ url_for('create_bucket') }}"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create new bucket</a></li>
-      <li><a href="{{ url_for('cloud_watch') }}"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> CloudWatch logs</a></li>
+      <li><a href=""><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> CloudWatch logs</a></li>
       <li><a href=""><span class="glyphicon glyphicon-user" aria-hidden="true"></span> {{name}}</a></li>
       <li><a href=""><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> environment:
         {% if cur_env == 'prod' %}

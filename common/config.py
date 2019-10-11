@@ -1,12 +1,11 @@
+import os
+basedir = os.path.abspath(os.path.dirname(__file__))
+
+
 class BaseConfig:
-    def __init__(self, user, password, host, port, database):
-        self.user = user
-        self.password = password
-        self.host = host
-        self.database = database
-        self.port = int(port)
-        self.DATABASE_CONNECTION_URI =\
-            f'postgresql+psycopg2://{self.user}:{self.password}@{self.host}:{self.port}/{self.database}'
+    def __init__(self, db_name):
+        self.db_name = db_name
+        self.db_uri ='sqlite:///' + os.path.join(basedir, self.db_name)
 
 
 class DevelopmentConfig(BaseConfig):

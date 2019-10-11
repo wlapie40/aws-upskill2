@@ -1,7 +1,7 @@
 import boto3
 from flask import session
 
-from Project.aws.gateways.boto import _get_s3_resource
+from common.aws.gateways.boto import _get_s3_resource
 
 
 def get_bucket():

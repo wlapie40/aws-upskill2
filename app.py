@@ -1,5 +1,3 @@
-import os
-
 from flask import (
     render_template,
     request,
@@ -15,26 +13,23 @@ from flask_login import (login_user,
                          current_user, )
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from Project.api.api import (ListS3Buckets,
-                             ListS3BucketFiles,
-                             DeleteS3BucketFile,
-                             UploadS3BucketFile,
-                             DownloadS3BucketFile, )
-from Project.aws.gateways.boto import _client, _get_cloud_watch_logs
-from Project.aws.gateways.s3 import get_buckets_list, _get_s3_resource
-from Project.aws.gateways.session import get_bucket, get_region_name
-from Project.run import create_app
-from Project.user.forms import (LoginForm,
-                                RegisterForm,
-                                NewBucketForm,)
-from Project.user.models import db, User
+from common.api.api import (ListS3Buckets,
+                            ListS3BucketFiles,
+                            DeleteS3BucketFile,
+                            UploadS3BucketFile,
+                            DownloadS3BucketFile, )
+from common.aws.gateways.boto import (_client,
+                                      )
+from common.aws.gateways.s3 import (get_buckets_list,
+                                    _get_s3_resource, )
+from common.aws.gateways.session import get_bucket, get_region_name
+from common.run import create_app
+from common.user.forms import (LoginForm,
+                               RegisterForm,
+                               NewBucketForm, )
+from common.user.models import db, User
 
-app, api, login_manager, cur_env, cw_log = create_app()
-
-if os.path.exists("database.conf"):
-    os.remove("database.conf")
-
-#  todo create a separate class to keep details about logged user
+app, api, login_manager, cur_env = create_app()
 
 
 @login_manager.user_loader
@@ -44,14 +39,13 @@ def load_user(user_id):
 
 @app.route('/', methods=['GET', 'POST'])
 @login_required
-def index():
+def index(buckets_list=get_buckets_list()):
     if request.method == 'POST':
         bucket = request.form['bucket']
         session['bucket'] = bucket
         return redirect(url_for('files'))
     else:
-        buckets = get_buckets_list()
-        cw_log.put_log_events(message=f'ROUTE--> index TOP 10 {buckets[:10]}')
+        buckets = buckets_list
         return render_template("index.html", buckets=buckets, name=current_user.username, cur_env=cur_env)
 
 
@@ -61,7 +55,6 @@ def files():
     buckets = get_bucket()
     summaries = buckets.objects.all()
     try:
-        cw_log.put_log_events(message=f'ROUTE--> FILES msg: buckets:{buckets} summaries:{summaries}')
         return render_template('files.html', my_bucket=buckets,
                                files=summaries, name=current_user.username, cur_env=cur_env)
     except:
@@ -74,7 +67,6 @@ def upload():
     my_bucket = get_bucket()
     my_bucket.Object(file.filename).put(Body=file)
 
-    cw_log.put_log_events(message=f'ROUTE--> UPLOAD msg: "{file.filename}" uploaded successfully')
     flash('File uploaded successfully')
     return redirect(url_for('files'))
 
@@ -86,7 +78,6 @@ def delete():
     my_bucket = get_bucket()
     my_bucket.Object(key).delete()
 
-    cw_log.put_log_events(message=f'ROUTE--> delete msg:File: {key} deleted')
     flash('File deleted successfully')
     return redirect(url_for('files'))
 
@@ -97,7 +88,6 @@ def download():
     my_bucket = get_bucket()
     file_obj = my_bucket.Object(key).get()
 
-    cw_log.put_log_events(message=f'ROUTE--> download msg:File: {key} downloaded')
     return Response(
         file_obj['Body'].read(),
         mimetype='text/plain',
@@ -166,24 +156,13 @@ def create_bucket():
 
     else:
         return render_template('create_bucket.html', form=form, name=current_user.username, cur_env=cur_env)
-    cw_log.put_log_events(message=f'ROUTE--> create_bucket msg: bucket {bucket_name}{current_region} has been created')
     return render_template('create_bucket.html', form=form, name=current_user.username, cur_env=cur_env)
-
-
-@app.route('/instance/monitoring', methods=['GET', 'POST'])
-@login_required
-def cloud_watch():
-    response = _get_cloud_watch_logs(cw_log.log_group_name)
-    cw_log.put_log_events(message=f'ROUTE--> cloud_watch')
-    return render_template('instance_monitoring.html', logs=response['events'],
-                           name=current_user.username, cur_env=cur_env)
 
 
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
-    cw_log.put_log_events(message=f'ROUTE--> logout LOG OUT')
     return redirect(url_for('index'))
 
 
