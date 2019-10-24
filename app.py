@@ -1,3 +1,5 @@
+# from common.user.models import db, User
+from boto3.dynamodb.conditions import Key
 from flask import (
     render_template,
     request,
@@ -7,12 +9,8 @@ from flask import (
     Response,
     session,
 )
-from flask_login import (login_user,
-                         login_required,
-                         logout_user,
-                         current_user, )
-from werkzeug.security import generate_password_hash, check_password_hash
-
+from werkzeug.security import (generate_password_hash,
+                               check_password_hash,)
 from common.api.api import (ListS3Buckets,
                             ListS3BucketFiles,
                             DeleteS3BucketFile,
@@ -23,22 +21,29 @@ from common.aws.gateways.boto import (_client,
 from common.aws.gateways.s3 import (get_buckets_list,
                                     _get_s3_resource, )
 from common.aws.gateways.session import get_bucket, get_region_name
+from common.user.forms import (LoginForm,)
 from common.run import create_app
-from common.user.forms import (LoginForm,
-                               RegisterForm,
+from common.user.forms import (RegisterForm,
                                NewBucketForm, )
-from common.user.models import db, User
 
-app, api, login_manager, cur_env = create_app()
+from flask_login import (login_user,
+                          login_required,
+                          logout_user,
+                          current_user, )
+app, api, cur_env, db, login_manager = create_app()
 
 
 @login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
+def load_user(usernme):
+    print('load_user')
+    dynamodb = db.dynamodb
+    table = dynamodb.Table('sfigiel-dev-aws-upskill-user')
+    user = table.query(KeyConditionExpression=Key('Username').eq(usernme))['Items']
+    print(user)
+    return user
 
 
 @app.route('/', methods=['GET', 'POST'])
-@login_required
 def index(buckets_list=get_buckets_list()):
     if request.method == 'POST':
         bucket = request.form['bucket']
@@ -46,7 +51,7 @@ def index(buckets_list=get_buckets_list()):
         return redirect(url_for('files'))
     else:
         buckets = buckets_list
-        return render_template("index.html", buckets=buckets, name=current_user.username, cur_env=cur_env)
+        return render_template("index.html", buckets=buckets, name='test', cur_env=cur_env)
 
 
 @app.route('/files')
@@ -56,12 +61,13 @@ def files():
     summaries = buckets.objects.all()
     try:
         return render_template('files.html', my_bucket=buckets,
-                               files=summaries, name=current_user.username, cur_env=cur_env)
+                               files=summaries, name='test', cur_env=cur_env)
     except:
-        return render_template("index.html", buckets=buckets, name=current_user.username, cur_env=cur_env)
+        return render_template("index.html", buckets=buckets, name='test', cur_env=cur_env)
 
 
 @app.route('/upload', methods=['POST'])
+@login_required
 def upload():
     file = request.files['file']
     my_bucket = get_bucket()
@@ -72,6 +78,7 @@ def upload():
 
 
 @app.route('/delete', methods=['POST'])
+@login_required
 def delete():
     key = request.form['key']
 
@@ -83,6 +90,7 @@ def delete():
 
 
 @app.route('/download', methods=['POST'])
+@login_required
 def download():
     key = request.form['key']
     my_bucket = get_bucket()
@@ -100,10 +108,13 @@ def login():
     form = LoginForm()
 
     if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data).first()
+        dynamodb = db.dynamodb
+        table = dynamodb.Table('sfigiel-dev-aws-upskill-user')
+        user = table.query(KeyConditionExpression=Key('Username').eq(form.username.data))['Items'][0]
         if user:
-            if check_password_hash(user.password, form.password.data):
-                login_user(user, remember=form.remember.data)
+            user['is_active'] = True
+            login_user(user)
+            if check_password_hash(user['Password'], form.password.data):
                 return redirect(url_for('index'))
 
         return redirect(url_for('login'))
@@ -115,16 +126,22 @@ def login():
 def signup():
     form = RegisterForm()
     if form.validate_on_submit():
-        hashed_password = generate_password_hash(form.password.data, method='sha256')
-        new_user = User(username=form.username.data,
-                        email=form.email.data,
-                        password=hashed_password)
-        user = User.query.filter_by(username=form.username.data).first()
+        dynamodb = db.dynamodb
+        table = dynamodb.Table('sfigiel-dev-aws-upskill-user')
+        user = table.query(KeyConditionExpression=Key('Username').eq(form.username.data))['Items']
+
         if user:
-            flash('User has already been created')
+            flash('User has been created already')
             return redirect(url_for('signup'))
-        db.session.add(new_user)
-        db.session.commit()
+        hashed_password = generate_password_hash(form.password.data, method='sha256')
+        response = db.client.put_item(
+            TableName=db.table_name,
+            Item={
+                'Username': {'S': form.username.data},
+                'Password': {'S': hashed_password},
+                'Email': {'S': form.email.data},
+            }
+        )
         return redirect(url_for('login'))
     return render_template('signup.html', form=form)
 
@@ -145,24 +162,24 @@ def create_bucket():
 
         if '_' in bucket_name:
             flash("""Invalid bucket name""")
-            return render_template('create_bucket.html', form=form, name=current_user.username, cur_env=cur_env)
+            return render_template('create_bucket.html', form=form, name='test', cur_env=cur_env)
         if bucket_name not in buckets:
             s3_resource.create_bucket(
                 Bucket=bucket_name,
                 CreateBucketConfiguration={'LocationConstraint': 'eu-west-1'})
         else:
             flash(f'{bucket_name} already exists :( ')
-            return render_template('create_bucket.html', form=form, name=current_user.username, cur_env=cur_env)
+            return render_template('create_bucket.html', form=form, name='test', cur_env=cur_env)
 
     else:
-        return render_template('create_bucket.html', form=form, name=current_user.username, cur_env=cur_env)
-    return render_template('create_bucket.html', form=form, name=current_user.username, cur_env=cur_env)
+        return render_template('create_bucket.html', form=form, name='test', cur_env=cur_env)
+    return render_template('create_bucket.html', form=form, name='test', cur_env=cur_env)
 
 
 @app.route('/logout')
 @login_required
 def logout():
-    logout_user()
+    # logout_user()
     return redirect(url_for('index'))
 
 
@@ -178,4 +195,4 @@ api.add_resource(DownloadS3BucketFile,
                  '/download/api/v1.0/file')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(port=8070, host='localhost',debug=True)

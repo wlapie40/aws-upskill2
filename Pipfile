@@ -47,6 +47,7 @@ Werkzeug = "==0.15.5"
 WTForms = "==2.2.1"
 pipenv = "==2018.11.26"
 mypy = "*"
+flask-dynamo = "*"
 
 [requires]
 python_version = "3.7"

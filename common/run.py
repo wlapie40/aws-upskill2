@@ -5,16 +5,11 @@ from flask import Flask
 from flask_bootstrap import Bootstrap
 from flask_login import LoginManager
 from flask_restful import Api
-from sqlalchemy import create_engine
-from sqlalchemy_utils import (database_exists,
-                              create_database, )
 
 from common.aws.entities.filters import (datetimeformat,
                                          file_type, )
-from common.config import DevelopmentConfig
-from common.user.models import db
-
-#  todo move to separate class obj
+from common.user.models import DynamoDB
+from config.config import get_config
 
 logger.basicConfig(filename='app_logs',
                             filemode='a',
@@ -22,39 +17,19 @@ logger.basicConfig(filename='app_logs',
                             datefmt='%H:%M:%S',
                             level=logger.INFO)
 
-DB_NAME = {
-    'prod': 'prod-db',
-    'dev': 'dev-db',
-    'docker': 'docker-db',
-}
-
 
 def create_app():
-    cur_env = str(os.environ['FLASK_ENV'])
-    print(f'cur_env: {cur_env} !!!')
+    cur_env = os.getenv("FLASK_ENV")
+    config = get_config()
 
-    db_name = DB_NAME[cur_env]
-
-    config = DevelopmentConfig(db_name)
+    db = DynamoDB(table_name=config.TABLE_NAME, client=config.CLIENT, region=config.AWS_REGION,
+                  resource=config.RESOURCE)
+    db.create_db()
 
     flask_app = Flask(__name__)
     flask_app.config['SECRET_KEY'] = 'the random string'
-    flask_app.config['SQLALCHEMY_DATABASE_URI'] = config.db_uri
-    logger.info(f'DATABASE_CONNECTION_URI: {config.db_uri}')
-
-    flask_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = config.SQLALCHEMY_TRACK_MODIFICATIONS
-
-    logger.info(f'CREATING DB ENGINE ...')
-
-    engine = create_engine(flask_app.config['SQLALCHEMY_DATABASE_URI'])
-    if not database_exists(engine.url):
-        create_database(engine.url)
-
-    logger.info(f'DATABASE_ENGINE: {database_exists(engine.url)}')
 
     with flask_app.app_context():
-        db.init_app(flask_app)
-        db.create_all()
         api = Api(flask_app)
         Bootstrap(flask_app)
 
@@ -64,5 +39,4 @@ def create_app():
 
         flask_app.jinja_env.filters['datetimeformat'] = datetimeformat
         flask_app.jinja_env.filters['file_type'] = file_type
-
-    return flask_app, api, login_manager, cur_env
+    return flask_app, api, cur_env, db, login_manager

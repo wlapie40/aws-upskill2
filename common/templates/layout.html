@@ -15,7 +15,6 @@
       <img src="/static/s3.png" width="60" height="50" class="d-inline-block align-top" alt="">
     </a>
     <ul class="nav navbar-nav">
-      {% if current_user.is_authenticated %}
       <li><a href="{{ url_for('index') }}"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span>S3 buckets list </a></li>
       <!--      <li><a href="{{ url_for('files') }}"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Files</a></li>-->
       <li><a href="{{ url_for('create_bucket') }}"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create new bucket</a></li>
@@ -29,10 +28,6 @@
         {% else %}
         <font color="green"><b>{{cur_env}}</b></font>
         {% endif %}</a></li>
-      <li><a href="{{ url_for('logout') }}">Logout</a></li>
-      {% else %}
-      <li><a href="{{ url_for('login') }}">Login</a></li>
-      {% endif %}
     </ul>
   </div>
 </div>
