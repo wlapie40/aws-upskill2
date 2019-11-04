@@ -3,7 +3,7 @@ import logging as logger
 import boto3
 
 
-def _client(service: str, region_name: str = 'eu-west-1'):
+def _client(service: str, region_name: str = 'eu-west-2'):
     logger.info(f'call _client(service={service}, region_name={region_name})')
     return boto3.client(service, region_name)
 

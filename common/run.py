@@ -11,36 +11,28 @@ from sqlalchemy_utils import (database_exists,
 
 from common.aws.entities.filters import (datetimeformat,
                                          file_type, )
-from common.config import DevelopmentConfig
+from common.config.config import get_config
 from common.user.models import db
 
-#  todo move to separate class obj
-
-logger.basicConfig(filename='app_logs',
+logger.basicConfig(filename='app_logs.log',
                             filemode='a',
                             format=f'%(levelname)s:%(message)s',
                             datefmt='%H:%M:%S',
                             level=logger.INFO)
 
-DB_NAME = {
-    'prod': 'prod-db',
-    'dev': 'dev-db',
-    'docker': 'docker-db',
-}
+CUR_ENV = str(os.environ['FLASK_ENV'])
 
 
 def create_app():
-    cur_env = str(os.environ['FLASK_ENV'])
-    print(f'cur_env: {cur_env} !!!')
+    logger.info(f'cur_env: {CUR_ENV}')
+    print(f'cur_env: {CUR_ENV}')
 
-    db_name = DB_NAME[cur_env]
-
-    config = DevelopmentConfig(db_name)
-
+    config = get_config()
     flask_app = Flask(__name__)
     flask_app.config['SECRET_KEY'] = 'the random string'
-    flask_app.config['SQLALCHEMY_DATABASE_URI'] = config.db_uri
-    logger.info(f'DATABASE_CONNECTION_URI: {config.db_uri}')
+
+    flask_app.config['SQLALCHEMY_DATABASE_URI'] = config.DB_URI
+    logger.info(f'DATABASE_CONNECTION_URI: {config.DB_URI}')
 
     flask_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = config.SQLALCHEMY_TRACK_MODIFICATIONS
 
@@ -65,4 +57,4 @@ def create_app():
         flask_app.jinja_env.filters['datetimeformat'] = datetimeformat
         flask_app.jinja_env.filters['file_type'] = file_type
 
-    return flask_app, api, login_manager, cur_env
+    return flask_app, api, login_manager, CUR_ENV
