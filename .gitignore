@@ -30,7 +30,7 @@ htmlcov/
 .coverage.*
 *,cover
 app_logs
-dev-db
-prod-db
-docker-db
+db_dev
 database.conf
+.env
+flask_app_logs.log

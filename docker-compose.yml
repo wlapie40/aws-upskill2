@@ -1,0 +1,13 @@
+version: "3.5"
+services:
+  app:
+    container_name: flask
+    restart: always
+    build: .
+    ports:
+      - 5000:5000
+    environment:
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      FLASK_ENV: dev
+      FLASK_APP: app.py

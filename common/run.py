@@ -1,4 +1,3 @@
-import logging as logger
 import os
 
 from flask import Flask
@@ -12,27 +11,21 @@ from sqlalchemy_utils import (database_exists,
 from common.aws.entities.filters import (datetimeformat,
                                          file_type, )
 from common.config.config import get_config
+from common.logger import *
 from common.user.models import db
-
-logger.basicConfig(filename='app_logs.log',
-                            filemode='a',
-                            format=f'%(levelname)s:%(message)s',
-                            datefmt='%H:%M:%S',
-                            level=logger.INFO)
 
 CUR_ENV = str(os.environ['FLASK_ENV'])
 
 
 def create_app():
     logger.info(f'cur_env: {CUR_ENV}')
-    print(f'cur_env: {CUR_ENV}')
 
     config = get_config()
     flask_app = Flask(__name__)
-    flask_app.config['SECRET_KEY'] = 'the random string'
+    flask_app.secret_key = config.SECRET_KEY
 
     flask_app.config['SQLALCHEMY_DATABASE_URI'] = config.DB_URI
-    logger.info(f'DATABASE_CONNECTION_URI: {config.DB_URI}')
+    logger.info(f'SQLALCHEMY_DATABASE_URI: {config.DB_URI}')
 
     flask_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = config.SQLALCHEMY_TRACK_MODIFICATIONS
 
@@ -57,4 +50,4 @@ def create_app():
         flask_app.jinja_env.filters['datetimeformat'] = datetimeformat
         flask_app.jinja_env.filters['file_type'] = file_type
 
-    return flask_app, api, login_manager, CUR_ENV
+    return flask_app, api, login_manager, CUR_ENV, logger

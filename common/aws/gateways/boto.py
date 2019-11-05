@@ -1,4 +1,4 @@
-import logging as logger
+from common.logger import *
 
 import boto3
 
@@ -16,8 +16,3 @@ def _get_cloud_watch_logs(log_group: str):
 
 def _get_s3_resource():
         return boto3.resource('s3')
-
-
-
-
-

@@ -1,5 +1,5 @@
 # from common.run import logger
-from . boto import _client
+from common.aws.gateways.boto import _client
 
 
 def read_parameters_store(param_name: str, with_decryption: bool = False):

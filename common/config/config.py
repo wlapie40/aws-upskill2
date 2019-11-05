@@ -1,5 +1,4 @@
 import os
-
 from dotenv import load_dotenv
 
 from common.aws.gateways.parameter_store import read_parameters_store
@@ -10,8 +9,11 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 
 class BaseConfig:
+    SECRET_KEY = os.urandom(12).hex()
+
     def __init__(self, name):
         self.name = name
+        self.secret_ket = os.urandom(12).hex()
 
     @property
     def name(self):
@@ -33,9 +35,9 @@ class DevelopmentConfig(BaseConfig):
     """
     DB_URI = f'sqlite:///' + os.path.join(basedir, os.getenv('LOCAL_DB_NAME'))
     FLASK_DEBUG = 1
-    # DEBUG = True
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     SQLALCHEMY_ECHO = True
+    FLASK_ENV = 'development'
 
 
 class ProductionConfig(BaseConfig):
@@ -44,7 +46,7 @@ class ProductionConfig(BaseConfig):
     """
     DB_URI = read_parameters_store(param_name=f'{os.getenv("PARAMETER_STORE")}', with_decryption=True)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    # FLASK_DEBUG = 0
+    FLASK_DEBUG = 0
 
 
 class DockerConfig(BaseConfig):
@@ -52,10 +54,11 @@ class DockerConfig(BaseConfig):
     Production configurations
     """
     host = 'database'
-    FLASK_DEBUG = True
+    FLASK_DEBUG=1
     DEBUG = True
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     SQLALCHEMY_ECHO = True
+    FLASK_ENV = 'development'
 
 
 def get_config():

@@ -28,4 +28,7 @@ class RegisterForm(FlaskForm):
 
 
 class NewBucketForm(FlaskForm):
-    bucket_name = StringField('Bucket name', default='anowak-bucket-name', validators=[InputRequired(), Length(min=4, max=80)])
+    bucket_name = StringField('Bucket name',
+                              default=f'username-bucket-name',
+                              validators=[InputRequired(),
+                                          Length(min=4, max=80)])
