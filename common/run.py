@@ -18,6 +18,9 @@ CUR_ENV = str(os.environ['FLASK_ENV'])
 
 
 def create_app():
+    print(f'FLASK_ENV: {os.getenv("FLASK_ENV")}')
+    print(f'LOCAL_DB_NAME: {os.getenv("LOCAL_DB_NAME")}')
+    print(f'TEST docker 1.0.0.1')
     logger.info(f'cur_env: {CUR_ENV}')
 
     config = get_config()
