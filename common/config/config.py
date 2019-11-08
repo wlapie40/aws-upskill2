@@ -33,20 +33,19 @@ class DevelopmentConfig(BaseConfig):
     """
     Development configurations
     """
-    DB_URI = f'sqlite:///' + os.path.join(basedir, os.getenv('LOCAL_DB_NAME'))
-    FLASK_DEBUG = 1
+    DB_URI = f'sqlite:///' + os.path.join(basedir,
+                                          f"{os.getenv('LOCAL_DB_NAME') if os.getenv('LOCAL_DB_NAME') else None}")
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     SQLALCHEMY_ECHO = True
-    FLASK_ENV = 'development'
 
 
 class ProductionConfig(BaseConfig):
-    """
+    """sfigiel-aws-upskill-db-creds-prod
     Production configurations
     """
-    DB_URI = read_parameters_store(param_name=f'{os.getenv("PARAMETER_STORE")}', with_decryption=True)
+    DB_URI = read_parameters_store(param_name=f'{os.getenv("PARAMETER_STORE")}',
+                                   with_decryption=True)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    FLASK_DEBUG = 0
 
 
 class DockerConfig(BaseConfig):
@@ -54,11 +53,9 @@ class DockerConfig(BaseConfig):
     Production configurations
     """
     host = 'database'
-    FLASK_DEBUG=1
-    DEBUG = True
+    DB_URI = 'mysql://test:test123456@database/db_dev'
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     SQLALCHEMY_ECHO = True
-    FLASK_ENV = 'development'
 
 
 def get_config():

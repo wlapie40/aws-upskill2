@@ -20,14 +20,15 @@ CUR_ENV = str(os.environ['FLASK_ENV'])
 def create_app():
     print(f'FLASK_ENV: {os.getenv("FLASK_ENV")}')
     print(f'LOCAL_DB_NAME: {os.getenv("LOCAL_DB_NAME")}')
-    print(f'TEST docker 1.0.0.1')
-    logger.info(f'cur_env: {CUR_ENV}')
 
+    logger.info(f'cur_env: {CUR_ENV}')
     config = get_config()
     flask_app = Flask(__name__)
     flask_app.secret_key = config.SECRET_KEY
-
     flask_app.config['SQLALCHEMY_DATABASE_URI'] = config.DB_URI
+
+    print(config)
+    print(config.DB_URI)
     logger.info(f'SQLALCHEMY_DATABASE_URI: {config.DB_URI}')
 
     flask_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = config.SQLALCHEMY_TRACK_MODIFICATIONS
