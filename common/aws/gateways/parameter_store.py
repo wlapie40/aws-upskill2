@@ -1,16 +1,17 @@
-# from common.run import logger
 from common.aws.gateways.boto import _client
+# from common.logger import *
 
 
 def read_parameters_store(param_name: str, with_decryption: bool = False):
-    # logger.info(f'call _read_parameters_store(param_name={param_name})')
     client = _client('ssm')
+    # logger.info(f'read_parameters_store: param_name={param_name}, with_decryption={with_decryption}')
+    if not param_name:
+        raise ValueError("param_name value error. You need to provide parameter store name")
     try:
         return str(client.get_parameter(Name=param_name,
                                     WithDecryption=with_decryption)['Parameter']['Value'])
     except Exception as e:
-        # logger.error(f'read_parameters_store ERROR: {e}')
-        # logger.error(f'CHECK AWS CREDENTIALS !\nError msg: {e}')
+        print(f'error {str(e)}')
         return None
 
 

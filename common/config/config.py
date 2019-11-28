@@ -1,9 +1,14 @@
 import os
-from dotenv import load_dotenv
+
+from dotenv import load_dotenv, find_dotenv
 
 from common.aws.gateways.parameter_store import read_parameters_store
 
-load_dotenv()
+load_dotenv(find_dotenv())
+
+print(f'FLASK_ENV: {os.getenv("FLASK_ENV")}')
+print(f'LOCAL_DB_NAME: {os.getenv("LOCAL_DB_NAME")}')
+print(f'PARAMETER_STORE: {os.getenv("PARAMETER_STORE")}')
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -35,6 +40,7 @@ class DevelopmentConfig(BaseConfig):
     """
     DB_URI = f'sqlite:///' + os.path.join(basedir,
                                           f"{os.getenv('LOCAL_DB_NAME') if os.getenv('LOCAL_DB_NAME') else None}")
+
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     SQLALCHEMY_ECHO = True
 
@@ -62,5 +68,5 @@ def get_config():
     app_env = {"dev": DevelopmentConfig,
                "prod": ProductionConfig,
                "docker": DockerConfig}
-
+    print(f'app_env: {app_env[os.getenv("FLASK_ENV")]}')
     return app_env[os.getenv('FLASK_ENV')]
