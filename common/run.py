@@ -20,13 +20,14 @@ CUR_ENV = str(os.environ['FLASK_ENV'])
 def create_app():
     logger.info(f'cur_env: {CUR_ENV}')
     config = get_config()
+
+    logger.info(f'dict config: {config.__dict__}')
+
     flask_app = Flask(__name__)
     flask_app.secret_key = config.SECRET_KEY
 
-    # config.DB_URI = 'mysql+pymysql://sfigiel:DBSfigiel1234@sfigiel-flask-db-prod.cgf1hknohtf8.us-east-1.rds.amazonaws.com:3306/flask_users'
-
     flask_app.config['SQLALCHEMY_DATABASE_URI'] = config.DB_URI
-    print(f'config.DB_URI: {config.DB_URI}')
+    logger.info(f'config.DB_URI: {config.DB_URI}')
 
     logger.info(f'SQLALCHEMY_DATABASE_URI: {config.DB_URI}')
 

@@ -1,9 +1,9 @@
-from common.logger import *
-
 import boto3
 
+from common.logger import *
 
-def _client(service: str, region_name: str = 'eu-west-2'):
+
+def _client(region_name: str, service: str):
     logger.info(f'call _client(service={service}, region_name={region_name})')
     return boto3.client(service, region_name)
 
