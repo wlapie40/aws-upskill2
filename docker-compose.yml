@@ -1,0 +1,21 @@
+version: "3.5"
+services:
+  database:
+    container_name: mysql_db
+    restart: always
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: db_dev
+      MYSQL_USER: test
+      MYSQL_PASSWORD: test1234
+    ports:
+      - 3306:3306
+  app:
+    container_name: flask_app
+    restart: always
+    build: .
+    ports:
+      - 80:5000
+    depends_on:
+      - database
